@@ -119,6 +119,20 @@ a:visited {
   font-weight: 800;
 }
 
+.workout__button {
+  margin-right: 10px;
+  padding: 5px;
+  font: inherit;
+  background-color: transparent;
+  border: none;
+  color: var(--color-light--2);
+  cursor: pointer;
+}
+
+.workout__button:last-child {
+  margin-right: 0;
+}
+
 .form {
   background-color: var(--color-dark--2);
   border-radius: 5px;
