@@ -2,6 +2,7 @@
 
 const form = document.querySelector('.form');
 const btnDeleteAll = document.querySelector('.workout__delete-all');
+const btnSort = document.querySelector('.workout__sort');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
 const inputDistance = document.querySelector('.form__input--distance');
@@ -63,6 +64,7 @@ class App {
     #mapZoomLevel = 13;
     #workouts = [];
     #isEdit = false;
+    #isSort = false;
     #editWorkOutId;
 
     constructor()  {
@@ -71,8 +73,12 @@ class App {
 
         //Get local storage
         this._getLocalStorage();
+
         //Shown button delete all
         this._showButtonDeleteAll();
+
+        //Show button sort
+        this._showButtonSort();
 
         //Attach events
         form.addEventListener('submit', this._newWorkout.bind(this));
@@ -81,6 +87,7 @@ class App {
         containerWorkouts.addEventListener('click', this._editWorkout.bind(this));
         containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
         btnDeleteAll.addEventListener('click', this._deleteAllWorkouts.bind(this));
+        btnSort.addEventListener('click', this._sortWorkouts.bind(this));
     }
 
     _getPosition() {
@@ -177,9 +184,12 @@ class App {
 
         this.#workouts.push(workout);
 
-        if (this.#workouts.length === 1) {
-            btnDeleteAll.classList.remove('hidden')
-        }
+        // if (this.#workouts.length === 1) {
+        //     btnDeleteAll.classList.remove('hidden')
+        // }
+        this._showButtonDeleteAll();
+
+        this._showButtonSort();
     
         //Render workout on map as marker
         this._renderWorkOutMarker(workout);
@@ -392,6 +402,10 @@ class App {
             btnDeleteAll.classList.add('hidden');
         }
 
+        if (this.#workouts.length === 1) {
+            btnSort.classList.add('hidden');
+        }
+
         //Remove marker
         const [lat, lng] = curWorkout.coords;
         this.#map.eachLayer(function(layer) {
@@ -421,13 +435,31 @@ class App {
         });
 
         btnDeleteAll.classList.add('hidden');
-        //this._clearLocalStorage();
+        btnSort.classList.add('hidden');
+        this._clearLocalStorage();
     }
 
     _showButtonDeleteAll() {
         if (!this.#workouts.length) return;
 
         btnDeleteAll.classList.remove('hidden')
+    }
+
+    _sortWorkouts() {
+        this.#isSort = !this.#isSort;
+
+        const workoutEl = containerWorkouts.querySelectorAll('.workout');
+        workoutEl.forEach(el => el.remove());
+
+        const workouts = this.#isSort ? this.#workouts.slice().sort((a, b) => a.distance - b.distance ) : this.#workouts;
+        
+        workouts.forEach(workout => this._renderWorkout(workout));
+    }
+
+    _showButtonSort() {
+        if (this.#workouts.length < 2) return;
+
+        btnSort.classList.remove('hidden')
     }
 
     _getLocalStorage() {
