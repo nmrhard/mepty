@@ -133,6 +133,17 @@ a:visited {
   margin-right: 0;
 }
 
+.workout__delete-all {
+  display: block;
+  margin-bottom: 10px;
+  margin-left: auto;
+  font-size: 1.7rem;
+}
+
+.hidden {
+  display: none;
+}
+
 .form {
   background-color: var(--color-dark--2);
   border-radius: 5px;

@@ -1,6 +1,7 @@
 'use strict';
 
 const form = document.querySelector('.form');
+const btnDeleteAll = document.querySelector('.workout__delete-all');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
 const inputDistance = document.querySelector('.form__input--distance');
@@ -70,6 +71,8 @@ class App {
 
         //Get local storage
         this._getLocalStorage();
+        //Shown button delete all
+        this._showButtonDeleteAll();
 
         //Attach events
         form.addEventListener('submit', this._newWorkout.bind(this));
@@ -77,6 +80,7 @@ class App {
         containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
         containerWorkouts.addEventListener('click', this._editWorkout.bind(this));
         containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
+        btnDeleteAll.addEventListener('click', this._deleteAllWorkouts.bind(this));
     }
 
     _getPosition() {
@@ -172,6 +176,10 @@ class App {
         }
 
         this.#workouts.push(workout);
+
+        if (this.#workouts.length === 1) {
+            btnDeleteAll.classList.remove('hidden')
+        }
     
         //Render workout on map as marker
         this._renderWorkOutMarker(workout);
@@ -184,6 +192,7 @@ class App {
 
         //Set local storage
         this._setLocalStorage();
+
     }
 
     _renderWorkOutMarker (workout) {
@@ -379,6 +388,10 @@ class App {
         workout.remove();
         this.#workouts = this.#workouts.filter(item => item.id !==  workoutId);
 
+        if (this.#workouts.length === 0) {
+            btnDeleteAll.classList.add('hidden');
+        }
+
         //Remove marker
         const [lat, lng] = curWorkout.coords;
         this.#map.eachLayer(function(layer) {
@@ -393,6 +406,28 @@ class App {
 
     _setLocalStorage() {
         localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+    }
+
+    _deleteAllWorkouts() {
+        const workouts = document.querySelectorAll('.workout');
+
+        workouts.forEach(workout => workout.remove());
+        this.#workouts = [];
+
+        this.#map.eachLayer(function(layer) {
+            if (layer instanceof L.Marker)  {
+                layer.remove();
+            }
+        });
+
+        btnDeleteAll.classList.add('hidden');
+        //this._clearLocalStorage();
+    }
+
+    _showButtonDeleteAll() {
+        if (!this.#workouts.length) return;
+
+        btnDeleteAll.classList.remove('hidden')
     }
 
     _getLocalStorage() {
