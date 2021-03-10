@@ -467,7 +467,13 @@ class App {
 
         if (!data) return;
 
-        this.#workouts = data;
+        data.forEach(obj => {
+            const workout = (obj.type === 'running') ? Object.assign(new Runing(), obj) : Object.assign(new Cycling(), obj);
+            this.#workouts.push(workout);
+        })
+
+        console.log(this.#workouts);
+        console.log(data);
 
         this.#workouts.forEach( workout => {
             this._renderWorkout(workout);
