@@ -3,6 +3,9 @@
 const form = document.querySelector('.form');
 const btnDeleteAll = document.querySelector('.workout__delete-all');
 const btnSort = document.querySelector('.workout__sort');
+const modal = document.querySelector('.modal');
+const closeModalBtn = document.querySelector('.close-modal');
+const overlay = document.querySelector('.overlay');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
 const inputDistance = document.querySelector('.form__input--distance');
@@ -88,6 +91,9 @@ class App {
         containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
         btnDeleteAll.addEventListener('click', this._deleteAllWorkouts.bind(this));
         btnSort.addEventListener('click', this._sortWorkouts.bind(this));
+
+        this.boundCloseModal = this._closeModal.bind(this);
+        this.boundCloseModalKey = this._closeModalKey.bind(this);
     }
 
     _getPosition() {
@@ -165,7 +171,8 @@ class App {
             const cadence = +inputCadence.value;
             //if data is valid
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                return alert('Inputs have to positive number');
+                this._showMessage();
+                return;
             }
 
             workout = new Runing([lat, lng], distance, duration, cadence);
@@ -176,7 +183,8 @@ class App {
             const elevation = +inputElevation.value;
             //if data is valid
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return alert('Inputs have to positive number');
+                this._showMessage();
+                return;
             }
 
             workout = new Cycling([lat, lng], distance, duration, elevation);
@@ -348,7 +356,8 @@ class App {
             curWorkout.pace = duration / distance;
 
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                return alert('Inputs have to positive number');
+                this._showMessage();
+                return;
             }
         }
 
@@ -358,7 +367,8 @@ class App {
             curWorkout.speed = distance / (duration / 60);
             
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                return alert('Inputs have to positive number');
+                this._showMessage();
+                return;
             }
         }
 
@@ -487,6 +497,28 @@ class App {
     reset()   {
         localStorage.removeItem('workouts');
         location.reload();
+    }
+
+    _showMessage() {
+        modal.classList.remove('hidden');
+        overlay.classList.remove('hidden');
+
+        closeModalBtn.addEventListener('click', this.boundCloseModal);
+        document.addEventListener('keydown', this.boundCloseModalKey);
+    }
+
+    _closeModal() {
+        modal.classList.add('hidden');
+        overlay.classList.add('hidden');
+
+        closeModalBtn.removeEventListener('click', this.boundCloseModal);
+        document.removeEventListener('keydown', this.boundCloseModalKey);
+    }
+
+    _closeModalKey(evt) {
+        if (evt.key === 'Escape' && !modal.classList.contains('hidden')) {
+            this._closeModal();
+        }
     }
 }
 
