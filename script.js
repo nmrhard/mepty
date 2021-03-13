@@ -171,7 +171,7 @@ class App {
             const cadence = +inputCadence.value;
             //if data is valid
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                this._showMessage();
+                this._showErrorMessage();
                 return;
             }
 
@@ -183,7 +183,7 @@ class App {
             const elevation = +inputElevation.value;
             //if data is valid
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                this._showMessage();
+                this._showErrorMessage();
                 return;
             }
 
@@ -356,7 +356,7 @@ class App {
             curWorkout.pace = duration / distance;
 
             if (!this._validInputs(distance, duration, cadence) || !this._allPositive(distance, duration, cadence)) {
-                this._showMessage();
+                this._showErrorMessage();
                 return;
             }
         }
@@ -367,7 +367,7 @@ class App {
             curWorkout.speed = distance / (duration / 60);
             
             if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
-                this._showMessage();
+                this._showErrorMessage();
                 return;
             }
         }
@@ -499,7 +499,7 @@ class App {
         location.reload();
     }
 
-    _showMessage() {
+    _showErrorMessage() {
         modal.classList.remove('hidden');
         overlay.classList.remove('hidden');
 
