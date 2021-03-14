@@ -3,6 +3,7 @@
 const form = document.querySelector('.form');
 const btnDeleteAll = document.querySelector('.workout__delete-all');
 const btnSort = document.querySelector('.workout__sort');
+const btnShowWorkouts = document.querySelector('.workout__all');
 const modal = document.querySelector('.modal');
 const closeModalBtn = document.querySelector('.close-modal');
 const overlay = document.querySelector('.overlay');
@@ -83,6 +84,9 @@ class App {
         //Show button sort
         this._showButtonSort();
 
+        //Show button all workouts
+        this._showButtonAllWorkouts();
+
         //Attach events
         form.addEventListener('submit', this._newWorkout.bind(this));
         inputType.addEventListener('change', this._toggleElevationField);
@@ -91,6 +95,7 @@ class App {
         containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
         btnDeleteAll.addEventListener('click', this._deleteAllWorkouts.bind(this));
         btnSort.addEventListener('click', this._sortWorkouts.bind(this));
+        btnShowWorkouts.addEventListener('click', this._showAllWorkouts.bind(this));
 
         this.boundCloseModal = this._closeModal.bind(this);
         this.boundCloseModalKey = this._closeModalKey.bind(this);
@@ -192,12 +197,11 @@ class App {
 
         this.#workouts.push(workout);
 
-        // if (this.#workouts.length === 1) {
-        //     btnDeleteAll.classList.remove('hidden')
-        // }
         this._showButtonDeleteAll();
 
         this._showButtonSort();
+
+        this._showButtonAllWorkouts();
     
         //Render workout on map as marker
         this._renderWorkOutMarker(workout);
@@ -410,6 +414,7 @@ class App {
 
         if (this.#workouts.length === 0) {
             btnDeleteAll.classList.add('hidden');
+            btnShowWorkouts.classList.add('hidden');
         }
 
         if (this.#workouts.length === 1) {
@@ -446,6 +451,7 @@ class App {
 
         btnDeleteAll.classList.add('hidden');
         btnSort.classList.add('hidden');
+        btnShowWorkouts.classList.add('hidden');
         this._clearLocalStorage();
     }
 
@@ -482,9 +488,6 @@ class App {
             this.#workouts.push(workout);
         })
 
-        console.log(this.#workouts);
-        console.log(data);
-
         this.#workouts.forEach( workout => {
             this._renderWorkout(workout);
         })
@@ -519,6 +522,25 @@ class App {
         if (evt.key === 'Escape' && !modal.classList.contains('hidden')) {
             this._closeModal();
         }
+    }
+
+    _showAllWorkouts() {
+        const allMArkers = [];
+
+        this.#map.eachLayer(function(layer) {
+            if (layer instanceof L.Marker)  {
+                allMArkers.push(layer);
+            }
+        });
+
+        const group = new L.featureGroup(allMArkers);
+        this.#map.fitBounds(group.getBounds());
+    }
+
+    _showButtonAllWorkouts() {
+        if (!this.#workouts.length) return;
+
+        btnShowWorkouts.classList.remove('hidden')
     }
 }
 
