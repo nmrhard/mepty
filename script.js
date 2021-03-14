@@ -111,22 +111,22 @@ class App {
     }
 
     _loadMap(position) {
-            const {latitude} = position.coords;
-            const {longitude} = position.coords;
-            
-            const coords = [latitude, longitude];
+        const {latitude} = position.coords;
+        const {longitude} = position.coords;
+        
+        const coords = [latitude, longitude];
 
-            this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
+        this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(this.#map);
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(this.#map);
 
-            this.#map.on('click', this._showForm.bind(this));
+        this.#map.on('click', this._showForm.bind(this));
 
-            this.#workouts.forEach( workout => {
-                this._renderWorkOutMarker(workout);
-            })
+        this.#workouts.forEach( workout => {
+            this._renderWorkOutMarker(workout);
+        })
     }
 
     _showForm(mapEvt) {
