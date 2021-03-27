@@ -18,10 +18,11 @@ class Workout {
     date = new Date();
     id = (Date.now() + '').slice(-10);
 
-    constructor(coords, distance, duration) {
+    constructor(coords, distance, duration, location) {
         this.coords = coords;
         this.distance = distance;
         this.duration = duration;
+        this.location = location;
     }
 
     _setDescription() {
@@ -33,8 +34,8 @@ class Workout {
 class Runing extends Workout {
     type = 'running';
 
-    constructor(coords, distance, duration, cadence) {
-        super(coords, distance, duration);
+    constructor(coords, distance, duration, location, cadence) {
+        super(coords, distance, duration, location);
         this.cadence = cadence;
         this.calcPace();
         this._setDescription();
@@ -49,8 +50,8 @@ class Runing extends Workout {
 class Cycling extends Workout {
     type = 'cycling';
 
-    constructor(coords, distance, duration, elevationGain) {
-        super(coords, distance, duration);
+    constructor(coords, distance, duration, location, elevationGain) {
+        super(coords, distance, duration, location);
         this.elevationGain = elevationGain;
         this.calcSpeed();
         this._setDescription();
@@ -156,7 +157,7 @@ class App {
 
     _allPositive = (...inputs) => inputs.every(item => item > 0);
 
-    _newWorkout(evt) {
+    async _newWorkout(evt) {
         evt.preventDefault();
 
         if (this.#isEdit) {
@@ -171,6 +172,10 @@ class App {
         const {lat, lng} = this.#mapEvent.latlng;
         let workout;
 
+        const resContry = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+        const dataCountry = await resContry.json();
+        const location = `${dataCountry.city}, ${dataCountry.country}`;
+
         //If workout running, create running object
         if (type === 'running') {
             const cadence = +inputCadence.value;
@@ -180,14 +185,14 @@ class App {
                 return;
             }
 
-            workout = new Runing([lat, lng], distance, duration, cadence);
+            workout = new Runing([lat, lng], distance, duration, location, cadence);
         }
 
         //If workout cycling, create cycling object
         if (type === 'cycling') {
             const elevation = +inputElevation.value;
             //if data is valid
-            if (!this._validInputs(distance, duration, elevation) || !this._allPositive(distance, duration)) {
+            if (!this._validInputs(distance, duration, location, elevation) || !this._allPositive(distance, duration)) {
                 this._showErrorMessage();
                 return;
             }
@@ -229,7 +234,10 @@ class App {
                 className: `${workout.type}-popup`,
             })
         )
-        .setPopupContent(`${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`)
+        .setPopupContent(`
+            ${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}
+            ${workout.location}
+        `)
         .openPopup();
     }
 
@@ -237,7 +245,7 @@ class App {
         let html = `
             <li class="workout workout--${workout.type}" data-id="${workout.id}">
             <div class="workout__header">
-                <h2 class="workout__title">${workout.description}</h2>
+                <h2 class="workout__title">${workout.description} ${workout.location}</h2>
                 <div class="workout__actions">
                     <button class="workout__button workout__edit" type="button">Edit</button>
                     <button class="workout__button workout__delete" type="button">Delete</button>
@@ -484,7 +492,9 @@ class App {
         if (!data) return;
 
         data.forEach(obj => {
-            const workout = (obj.type === 'running') ? Object.assign(new Runing(), obj) : Object.assign(new Cycling(), obj);
+            const workout = (obj.type === 'running') ? 
+            Object.assign(new Runing(obj.coords, obj.distance, obj.duration, obj.cadence), obj) : 
+            Object.assign(new Cycling(obj.coords, obj.distance, obj.duration, obj.elevationGain), obj);
             this.#workouts.push(workout);
         })
 
